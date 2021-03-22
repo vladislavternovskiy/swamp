@@ -9,7 +9,7 @@
 import Foundation
 import Starscream
 
-open class WebSocketSwampTransport: SwampTransport, WebSocketDelegate {
+open class WebSocketSwampTransport: SwampTransport {
 
     enum WebsocketMode {
         case binary, text
@@ -22,7 +22,10 @@ open class WebSocketSwampTransport: SwampTransport, WebSocketDelegate {
     fileprivate var disconnectionReason: String?
     
     public init(wsEndpoint: URL){
-        self.socket = WebSocket(url: wsEndpoint, protocols: ["wamp.2.json"])
+        var request = URLRequest(url: wsEndpoint)
+        request.setValue("wamp.2.json", forHTTPHeaderField: "Sec-WebSocket-Protocol")
+        let pinner = FoundationSecurity(allowSelfSigned: false)
+        self.socket = WebSocket(request: request, certPinner: pinner)
         self.mode = .text
         socket.delegate = self
     }
@@ -45,26 +48,34 @@ open class WebSocketSwampTransport: SwampTransport, WebSocketDelegate {
             self.socket.write(data: data)
         }
     }
-    
-    // MARK: WebSocketDelegate
+}
 
-    public func websocketDidConnect(socket: WebSocketClient) {
-        // TODO: Check which serializer is supported by the server, and choose self.mode and serializer
-        delegate?.swampTransportDidConnectWithSerializer(JSONSwampSerializer())
-    }
+extension WebSocketSwampTransport: WebSocketDelegate {
 
-    public func websocketDidDisconnect(socket: WebSocketClient, error: Error?) {
-        guard let error = error as NSError? else { return }
-        delegate?.swampTransportDidDisconnect(error, reason: self.disconnectionReason)
-    }
-
-    public func websocketDidReceiveMessage(socket: WebSocketClient, text: String) {
-        if let data = text.data(using: String.Encoding.utf8) {
-            self.websocketDidReceiveData(socket: socket, data: data)
+    public func didReceive(event: WebSocketEvent, client: WebSocket) {
+        switch event {
+        case .connected(_):
+            delegate?.didConnect(with: JSONSwampSerializer())
+        case let .disconnected(reason, code):
+            delegate?.didDisconnect(with: reason, code: Int(code))
+        case .text(let text):
+            if let data = text.data(using: .utf8) {
+                delegate?.didReceive(data: data)
+            }
+        case .binary(let data):
+            delegate?.didReceive(data: data)
+        case .pong(_):
+            break
+        case .ping(_):
+            break
+        case .error(let error):
+            delegate?.didReceive(error: error)
+        case .viabilityChanged(_):
+            break
+        case .reconnectSuggested(_):
+            break
+        case .cancelled:
+            break
         }
-    }
-
-    public func websocketDidReceiveData(socket: WebSocketClient, data: Data) {
-        delegate?.swampTransportReceivedData(data)
     }
 }

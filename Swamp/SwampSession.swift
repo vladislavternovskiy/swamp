@@ -7,13 +7,7 @@ import Foundation
 // MARK: Call callbacks
 public typealias CallCallback = (_ details: [String: Any], _ results: [Any]?, _ kwResults: [String: Any]?) -> Void
 public typealias ErrorCallCallback = (_ details: [String: Any], _ error: String, _ args: [Any]?, _ kwargs: [String: Any]?) -> Void
-// MARK: Callee callbacks
-// For now callee is irrelevant
-//public typealias RegisterCallback = (registration: Registration) -> Void
-//public typealias ErrorRegisterCallback = (details: [String: AnyObject], error: String) -> Void
-//public typealias SwampProc = (args: [AnyObject]?, kwargs: [String: AnyObject]?) -> AnyObject
-//public typealias UnregisterCallback = () -> Void
-//public typealias ErrorUnregsiterCallback = (details: [String: AnyObject], error: String) -> Void
+
 // MARK: Subscribe callbacks
 public typealias SubscribeCallback = (_ subscription: Subscription) -> Void
 public typealias ErrorSubscribeCallback = (_ details: [String: Any], _ error: String) -> Void
@@ -49,18 +43,14 @@ open class Subscription {
     }
 }
 
-// For now callee is irrelevant
-//public class Registration {
-//    private let session: SwampSession
-//}
-
 public protocol SwampSessionDelegate {
-    func swampSessionHandleChallenge(_ authMethod: String, extra: [String: Any]) -> String
-    func swampSessionConnected(_ session: SwampSession, sessionId: Int)
-    func swampSessionEnded(_ reason: String)
+    func handleChallenge(_ authMethod: String, extra: [String: Any]) -> String
+    func sessionConnected(_ session: SwampSession, sessionId: Int)
+    func sessionEnded(_ reason: String)
 }
 
-open class SwampSession: SwampTransportDelegate {
+open class SwampSession {
+
     // MARK: Public typealiases
 
     // MARK: delegate
@@ -185,60 +175,11 @@ open class SwampSession: SwampTransportDelegate {
         self.publishRequests[publishRequestId] = (callback: onSuccess, errorCallback: onError)
     }
 
-    // MARK: SwampTransportDelegate
-
-    open func swampTransportDidDisconnect(_ error: NSError?, reason: String?) {
-        if reason != nil {
-            self.delegate?.swampSessionEnded(reason!)
-        }
-        else if error != nil {
-            self.delegate?.swampSessionEnded("Unexpected error: \(error!.description)")
-        } else {
-            self.delegate?.swampSessionEnded("Unknown error.")
-        }
-    }
-
-    open func swampTransportDidConnectWithSerializer(_ serializer: SwampSerializer) {
-        self.serializer = serializer
-        // Start session by sending a Hello message!
-
-        var roles = [String: Any]()
-        for role in self.supportedRoles {
-            // For now basic profile, (demands empty dicts)
-            roles[role.rawValue] = [:]
-        }
-
-        var details: [String: Any] = [:]
-
-        if let authmethods = self.authmethods {
-            details["authmethods"] = authmethods
-        }
-        if let authid = self.authid {
-            details["authid"] = authid
-        }
-        if let authrole = self.authrole {
-            details["authrole"] = authrole
-        }
-        if let authextra = self.authextra {
-            details["authextra"] = authextra
-        }
-
-        details["agent"] = self.clientName
-        details["roles"] = roles
-        self.sendMessage(HelloSwampMessage(realm: self.realm, details: details))
-    }
-
-    open func swampTransportReceivedData(_ data: Data) {
-        if let payload = self.serializer?.unpack(data), let message = SwampMessages.createMessage(payload) {
-            self.handleMessage(message)
-        }
-    }
-
     fileprivate func handleMessage(_ message: SwampMessage) {
         switch message {
         // MARK: Auth responses
         case let message as ChallengeSwampMessage:
-            if let authResponse = self.delegate?.swampSessionHandleChallenge(message.authMethod, extra: message.extra) {
+            if let authResponse = self.delegate?.handleChallenge(message.authMethod, extra: message.extra) {
                 self.sendMessage(AuthenticateSwampMessage(signature: authResponse, extra: [:]))
             } else {
                 print("There was no delegate, aborting.")
@@ -249,7 +190,7 @@ open class SwampSession: SwampTransportDelegate {
             self.sessionId = message.sessionId
             let routerRoles = message.details["roles"]! as! [String : [String : Any]]
             self.routerSupportedRoles = routerRoles.keys.map { SwampRole(rawValue: $0)! }
-            self.delegate?.swampSessionConnected(self, sessionId: message.sessionId)
+            self.delegate?.sessionConnected(self, sessionId: message.sessionId)
         case let message as GoodbyeSwampMessage:
             if message.reason != "wamp.error.goodbye_and_out" {
                 // Means it's not our initiated goodbye, and we should reply with goodbye
@@ -360,5 +301,56 @@ open class SwampSession: SwampTransportDelegate {
     fileprivate func generateRequestId() -> Int {
         self.currRequestId += 1
         return self.currRequestId
+    }
+}
+
+extension SwampSession: SwampTransportDelegate {
+
+    public func didConnect(with serializer: SwampSerializer) {
+        self.serializer = serializer
+        // Start session by sending a Hello message!
+
+        var roles = [String: Any]()
+        for role in self.supportedRoles {
+            // For now basic profile, (demands empty dicts)
+            roles[role.rawValue] = [:]
+        }
+
+        var details: [String: Any] = [:]
+
+        if let authmethods = self.authmethods {
+            details["authmethods"] = authmethods
+        }
+        if let authid = self.authid {
+            details["authid"] = authid
+        }
+        if let authrole = self.authrole {
+            details["authrole"] = authrole
+        }
+        if let authextra = self.authextra {
+            details["authextra"] = authextra
+        }
+
+        details["agent"] = self.clientName
+        details["roles"] = roles
+        self.sendMessage(HelloSwampMessage(realm: self.realm, details: details))
+    }
+
+    public func didDisconnect(with reason: String, code: Int) {
+        delegate?.sessionEnded(reason)
+    }
+
+    public func didReceive(data: Data) {
+        if let payload = self.serializer?.unpack(data), let message = SwampMessages.createMessage(payload) {
+            self.handleMessage(message)
+        }
+    }
+
+    public func didReceive(error: Error?) {
+        guard let error = error else {
+            self.delegate?.sessionEnded("Unknown error.")
+            return
+        }
+        self.delegate?.sessionEnded("Unexpected error: \(error.localizedDescription)")
     }
 }

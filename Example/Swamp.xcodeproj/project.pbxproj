@@ -164,7 +164,6 @@
 				905F75B71D80A36400D16B4F /* Frameworks */,
 				905F75B81D80A36400D16B4F /* Resources */,
 				C1D3AAB9A61FEA73ACA7A1A2 /* [CP] Embed Pods Frameworks */,
-				6B913679CCC22EDB64FC33BF /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -184,7 +183,6 @@
 				90E731C21D6F9CC900576F4E /* Frameworks */,
 				90E731C31D6F9CC900576F4E /* Resources */,
 				35A6822C160B6FE624B5D19D /* [CP] Embed Pods Frameworks */,
-				4E7311C7DC471E6335077572 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -293,7 +291,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-Swamp_Test-iOS/Pods-Swamp_Test-iOS-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-Swamp_Test-iOS/Pods-Swamp_Test-iOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/CryptoSwift/CryptoSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/Nimble/Nimble.framework",
 				"${BUILT_PRODUCTS_DIR}/Quick/Quick.framework",
@@ -310,37 +308,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Swamp_Test-iOS/Pods-Swamp_Test-iOS-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		4E7311C7DC471E6335077572 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Swamp_Test-iOS/Pods-Swamp_Test-iOS-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		6B913679CCC22EDB64FC33BF /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Swamp_Test-OSX/Pods-Swamp_Test-OSX-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Swamp_Test-iOS/Pods-Swamp_Test-iOS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		C1D3AAB9A61FEA73ACA7A1A2 /* [CP] Embed Pods Frameworks */ = {
@@ -349,7 +317,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-Swamp_Test-OSX/Pods-Swamp_Test-OSX-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-Swamp_Test-OSX/Pods-Swamp_Test-OSX-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/CryptoSwift/CryptoSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/Nimble/Nimble.framework",
 				"${BUILT_PRODUCTS_DIR}/Quick/Quick.framework",
@@ -366,7 +334,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Swamp_Test-OSX/Pods-Swamp_Test-OSX-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Swamp_Test-OSX/Pods-Swamp_Test-OSX-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
