@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'Swamp'
-  s.version          = '0.2.2'
+  s.version          = '0.2.3'
   s.summary          = 'WAMP protocol implementation in swift'
 
 # This description is used to generate tags and improve search results.
@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-the WAMP WebSocket subprotocol implemented purely in Swift using Starscream, SwiftyJSON
+the WAMP WebSocket subprotocol implemented purely in Swift using Starscream
                        DESC
 
   s.homepage         = 'https://github.com/iscriptology/Swamp'
