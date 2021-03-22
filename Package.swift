@@ -9,7 +9,7 @@ let package = Package(
 		)
 	],
 	dependencies: [
-        .Package(url: "https://github.com/daltoniam/Starscream.git", majorVersion: 4)
+        .Package(url: "https://github.com/daltoniam/Starscream.git", majorVersion: 4),
 		.Package(url: "https://github.com/krzyzanowskim/CryptoSwift", majorVersion: 1),
 	],
 	exclude: ["Example"]
