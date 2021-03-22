@@ -6,20 +6,21 @@ import Swamp
 
 
 class TestSessionDelegate: SwampSessionDelegate {
+
     // For testing purposes
     var reasonEnded: String? = nil
     var sessionId: Int? = nil
 
-    func swampSessionHandleChallenge(_ authMethod: String, extra: [String : Any]) -> String {
+    func handleChallenge(_ authMethod: String, extra: [String : Any]) -> String {
         fatalError("Should be overriden, if needed")
     }
 
-    func swampSessionEnded(_ reason: String) {
-        self.reasonEnded = reason
+    func sessionConnected(_ session: SwampSession, sessionId: Int) {
+        self.sessionId = sessionId
     }
 
-    func swampSessionConnected(_ session: SwampSession, sessionId: Int) {
-        self.sessionId = sessionId
+    func sessionEnded(_ reason: String) {
+        self.reasonEnded = reason
     }
 }
 
@@ -29,7 +30,7 @@ class CraTestSessionDelegate: TestSessionDelegate {
         self.craSecret = craSecret
     }
 
-    override func swampSessionHandleChallenge(_ authMethod: String, extra: [String : Any]) -> String {
+    override func handleChallenge(_ authMethod: String, extra: [String : Any]) -> String {
         return SwampCraAuthHelper.sign(self.craSecret, challenge: extra["challenge"] as! String)
     }
 }
@@ -39,7 +40,7 @@ class TicketTestSessionDelegate: TestSessionDelegate {
     init(challengeResponse: String) {
         self.challengeResponse = challengeResponse
     }
-    override func swampSessionHandleChallenge(_ authMethod: String, extra: [String : Any]) -> String {
+    override func handleChallenge(_ authMethod: String, extra: [String : Any]) -> String {
         return self.challengeResponse
     }
 
@@ -56,11 +57,11 @@ class TestSwampTransport: SwampTransport {
     }
 
     func connect() {
-        self.delegate?.swampTransportDidConnectWithSerializer(JSONSwampSerializer())
+        self.delegate?.didConnect(with: JSONSwampSerializer())
     }
 
     func disconnect(_ reason: String) {
-        self.delegate?.swampTransportDidDisconnect(nil, reason: reason)
+        self.delegate?.didDisconnect(with: reason, code: 123)
     }
 
     func sendData(_ data: Data) {
@@ -69,9 +70,12 @@ class TestSwampTransport: SwampTransport {
 }
 
 class CrossbarIntegrationTestsSpec: QuickSpec {
+
+    var session: SwampSession?
+
     override func spec() {
-        describe("the Open realm") {
-            var session: SwampSession?
+        describe("the Open realm") { [self] in
+
 
             beforeEach {
                 session = SwampSession(realm: "open-realm", transport: WebSocketSwampTransport(wsEndpoint: URL(string: "ws://localhost:8080/ws")!), authmethods: ["anonymous"])
@@ -143,7 +147,7 @@ class CrossbarIntegrationTestsSpec: QuickSpec {
                 context("org.swamp.heartbeat") {
                     it("Should arrive within several seconds") {
                         var subscription: Subscription?
-                        waitUntil(timeout: 3) { done in
+                        waitUntil(timeout: .seconds(3)) { done in
                             session!.subscribe("org.swamp.heartbeat", onSuccess: { subscription = $0 }, onError: { details, error in
 
                             }, onEvent: { details, results, kwResults in

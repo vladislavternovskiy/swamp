@@ -23,7 +23,9 @@ open class WebSocketSwampTransport: SwampTransport {
     
     public init(wsEndpoint: URL){
         var request = URLRequest(url: wsEndpoint)
-        request.setValue("wamp.2.json", forHTTPHeaderField: "Sec-WebSocket-Protocol")
+        let json: [String: Any] = ["protocols": ["wamp.2.json"]]
+        let jsonData = try? JSONSerialization.data(withJSONObject: json)
+        request.httpBody = jsonData
         let pinner = FoundationSecurity(allowSelfSigned: false)
         self.socket = WebSocket(request: request, certPinner: pinner)
         self.mode = .text

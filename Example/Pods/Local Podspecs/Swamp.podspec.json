@@ -1,8 +1,8 @@
 {
   "name": "Swamp",
-  "version": "0.2.2",
+  "version": "0.2.4",
   "summary": "WAMP protocol implementation in swift",
-  "description": "the WAMP WebSocket subprotocol implemented purely in Swift using Starscream, SwiftyJSON",
+  "description": "the WAMP WebSocket subprotocol implemented purely in Swift using Starscream",
   "homepage": "https://github.com/iscriptology/Swamp",
   "license": {
     "type": "MIT",
@@ -13,7 +13,7 @@
   },
   "source": {
     "git": "https://github.com/vladislavternovskiy/swamp.git",
-    "tag": "0.2.2"
+    "tag": "0.2.4"
   },
   "platforms": {
     "ios": "10.0",

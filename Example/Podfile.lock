@@ -3,7 +3,7 @@ PODS:
   - Nimble (9.0.0)
   - Quick (3.1.2)
   - Starscream (4.0.4)
-  - Swamp (0.2.2):
+  - Swamp (0.2.4):
     - CryptoSwift
     - Starscream
 
@@ -28,7 +28,7 @@ SPEC CHECKSUMS:
   Nimble: 3b4ec3fd40f1dc178058e0981107721c615643d8
   Quick: 60f0ea3b8e0cfc0df3259a5c06a238ad8b3c46e0
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
-  Swamp: c6977b16ea22b5f7a436898cb371b95858ca05b8
+  Swamp: bf9e0a0cffe5493a30a7fe1eff9105a2a5e61838
 
 PODFILE CHECKSUM: 8f9b4c31da7538a6a8394c0ac97fbe568bf158c2
 

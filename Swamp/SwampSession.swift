@@ -294,7 +294,9 @@ open class SwampSession {
 
     fileprivate func sendMessage(_ message: SwampMessage){
         let marshalledMessage = message.marshal()
-        let data = self.serializer!.pack(marshalledMessage as [Any])!
+        guard let data = self.serializer?.pack(marshalledMessage as [Any]) else {
+            return
+        }
         self.transport.sendData(data)
     }
 
